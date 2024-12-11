@@ -1,0 +1,197 @@
+"""This file recreates the famous word guessing game."""
+import random as rd
+import sys
+
+
+def riddle(slovar):
+    """Функция для загадывания и правильного вывода слова."""
+    zagadka = rd.choice(slovar)
+    perv = zagadka[0]
+    posl = zagadka[-1]
+    lst = []
+    lst += perv + '_'*(len(zagadka)-2) + posl
+    for i in range(1, len(zagadka)-1,):
+        if zagadka[i] == perv:
+            lst[i] = perv
+        elif zagadka[i] == posl:
+            lst[i] = posl
+    vivod = ' '.join(lst)
+    print(vivod)
+    return [zagadka, vivod]
+
+
+def hod(mistakes, guess, slovo, vivod):
+    """Функция для хода по угадыванию буквы."""
+    lst = []
+    lst = vivod.split(' ')
+    guess = guess.lower()
+    if guess not in slovo:
+        mistakes -= 1
+        print(f'Буквы "{guess}" в загаданном слове нет. Количество оставшихся'
+              f' ошибок: {mistakes}')
+        return [mistakes, vivod]
+    else:
+        for i in range(1, len(slovo) - 1):
+            if slovo[i] == guess:
+                lst[i] = guess
+        vivod = ' '.join(lst)
+        print(f'Буква "{guess}" есть в слове! \n {vivod}')
+        return [mistakes, vivod]
+
+
+def igra(slovo, alpha, vivod):
+    """Функция полноценной одной игры."""
+    mistakes = 10
+    while mistakes > 0:
+        guess = input('Введите букву русского алфавита или попробуйте '
+                      'угадать слово.').strip()
+        if guess.isalpha():
+            if len(guess) > 1 and guess.lower() == slovo:
+                print(f"Поздравляю, вы выиграли! Загаданное слово - {slovo}")
+                break
+            elif len(guess) > 1 and guess.lower() != slovo:
+                mistakes -= 1
+                print(f"К сожалению, это неверно! Количество оставшихся"
+                      f" ошибок:{mistakes}")
+                continue
+            elif len(guess) == 1 and guess.lower() in alpha:
+                lst = hod(mistakes, guess, slovo, vivod)
+                mistakes, vivod = lst
+                if vivod.replace(' ', '') == slovo:
+                    print(f"Поздравляю, вы выиграли, отгадав все буквы"
+                          f" слова! Загаданное слово - {slovo}")
+                    break
+                continue
+            elif len(guess) == 1 and guess.lower() not in alpha:
+                print('Это не буква русского алфавита!')
+                continue
+        else:
+            if len(guess) == 1:
+                print('Это даже не буква!')
+                continue
+            else:
+                print('Слово должно состоять только из букв!')
+                continue
+    else:
+        print(f"Количество оставшихся ошибок: 0. К сожалению, вы проиграли,"
+              f" загадано было слово - {slovo}")
+
+
+vseslova = []
+slovar = []
+countnet = 0
+
+with open("Dicteasy.txt", "r", encoding="utf-8") as outfile:
+    for line in outfile.readlines():
+        line = line.strip()
+        vseslova.append(line)
+
+for slovo in vseslova:
+    if len(slovo) >= 5:
+        slovar.append(slovo)
+
+alpha = ["а", "б", "в", "г", "д", "е", "ё",
+         "ж", "з", "и", "й", "к", "л", "м",
+         "н", 'о', 'п', 'р', 'с', 'т', 'у',
+         'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ',
+         'ы', 'ь', 'э', 'ю', 'я']
+
+otv = input('Добро пожаловать в игру "Виселица"! Хотите узнать правила игры?'
+            ' \n - Да \n - Нет\n').strip()
+if otv.lower() != "да":
+    while otv.lower() != "да":
+        if otv.lower() not in ['да', 'нет']:
+            print("Пожалуйста, выберите вариант из списка: \n - Да \n"
+                  " - Нет\n")
+            otv = input().strip()
+            continue
+        elif otv.lower() == 'нет':
+            countnet += 1
+            if countnet == 1:
+                print("Зачем тогда Вы сюда пришли? Я спрошу ещё раз, если"
+                      " снова ответите «Нет», то все закончится. Хотите "
+                      "узнать правила? \n - Да \n - Нет\n")
+                otv = input().strip()
+                continue
+            if countnet == 2:
+                sys.exit("Как хотите :(")
+    else:
+        print("""Правила: Я загадываю имя существительное из пяти и более
+             букв, Вам сообщается длина слова, первая и последняя буквы (и
+             все их вхождения в слово).\n Ваша задача угадать слово. За
+             свой ход Вы можете либо попытаться узнать, есть ли
+             определенная буква в слове, либо попробовать угадать все
+             слово,\n при этом максимальное количество ошибок за любые из
+             ходов: 10. Если в свой ход захотите угадать букву, просто
+             введите любую букву русского алфавита,\n если сделать попытку
+             угадать слово - введите слово. (Если вы введёте несуществующее
+             слово - просто потратите свои ошибки) \n Будете играть? \n -Да
+             \n -Нет\n""")
+else:
+    print("""Правила: Я загадываю имя существительное из пяти и более
+         букв, Вам сообщается длина слова, первая и последняя буквы
+         (и все их вхождения в слово).\n Ваша задача угадать слово.
+         За свой ход Вы можете либо попытаться узнать, есть ли
+         определенная буква в слове, либо попробовать угадать все
+         слово,\n при этом максимальное количество ошибок за любые
+         из ходов: 10. Если в свой ход захотите угадать букву, просто
+         введите любую букву русского алфавита,\n если сделать
+         попытку угадать слово - введите слово. (Если вы введёте
+         несуществующее слово - просто
+         потратите свои ошибки) \n Будете играть?
+         \n -Да \n -Нет\n """)
+
+
+otv = input().strip()
+countnet = 0
+if otv.lower() != "да":
+    while otv.lower() != "да":
+        if otv.lower() not in ['да', 'нет']:
+            print("Пожалуйста, выберите вариант из списка: "
+                  "\n - Да \n - Нет\n")
+            otv = input().strip()
+            continue
+        elif otv.lower() == 'нет':
+            countnet += 1
+            if countnet == 1:
+                print("Почему Вы до сих пор это читаете? Спрошу"
+                      " последний раз. "
+                      "Играете? \n - Да \n - Нет\n")
+                otv = input().strip()
+                continue
+            if countnet == 2:
+                sys.exit("Как хотите :(")
+    else:
+        if countnet == 1:
+            print('Так то лучше!')
+            slovo = riddle(slovar)
+            slovo, vivod = slovo
+            print('Слово загадано, количество оставшихся ошибок: 10, '
+                  'можете делать ход.')
+        else:
+            slovo = riddle(slovar)
+            slovo, vivod = slovo
+            print('Слово загадано, количество оставшихся ошибок: 10,'
+                  ' можете делать ход.')
+else:
+    slovo = riddle(slovar)
+    slovo, vivod = slovo
+    print('Слово загадано, количество оставшихся ошибок: 10, можете'
+          ' делать ход.')
+
+
+while otv.lower() != 'нет':
+    if otv.lower() == 'да':
+        igra(slovo, alpha, vivod)
+    otv = input('Хотите сыграть ещё? \n - Да \n - Нет\n').strip()
+    if otv.lower() not in ['да', 'нет']:
+        print("Выберите, пожалуйста, вариант из списка.")
+    elif otv.lower() == 'да':
+        print('Отлично, играем!')
+        slovo = riddle(slovar)
+        slovo, vivod = slovo
+        print('Слово загадано, количество оставшихся ошибок: 10,'
+              ' можете делать ход.')
+    else:
+        print("Хорошо, приятно было с Вами иметь дело."
+              " До новых встреч!")
